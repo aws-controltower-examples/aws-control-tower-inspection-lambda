@@ -1,0 +1,194 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates a Lambda function that audits for dangling DNS records in the
+  AWS Organization and writes output to an S3 bucket
+Parameters:
+  DestinationBucketName:
+    Type: String
+  OrganizationId:
+    Type: String
+    Description: The Amazon Organizations ID for Control Tower.
+    AllowedPattern: ^[o][\-][a-z0-9]{10}$
+    ConstraintDescription: The Organization ID must be a 12 character string starting
+      with o- and followed by 10 Lowercase Alphanumeric Characters.
+  AssumeRole:
+    Type: String
+    Default: AWSControlTowerExecution
+    Description: What role should be assumed in accounts to enable inspector?  The
+      Default is AWSControlTowerExecution for a Control Tower environment.
+  S3SourceBucket:
+    Type: String
+    Description: "Source S3 bucket"
+  S3Key:
+    Type: String
+    Description: "The S3 Path to the Lambda Zip File"
+Resources:
+  DestinationBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketName:
+        Ref: DestinationBucketName
+      LoggingConfiguration:
+        DestinationBucketName:
+          Ref: LoggingBucket
+        LogFilePrefix: access-logs
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+  LoggingBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      BucketName:
+        Fn::Sub: ${DestinationBucketName}-logging
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+
+  LoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: LoggingBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Action:
+          - s3:GetObject
+          - s3:PutObject
+          Effect: Allow
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: LoggingBucket
+              - /*
+          Principal:
+            AWS: 
+              - '*'
+
+  DestinationBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: DestinationBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Action:
+          - s3:GetObject
+          - s3:PutObject
+          Effect: Allow
+          Resource:
+            Fn::Join:
+            - ''
+            - - 'arn:aws:s3:::'
+              - Ref: DestinationBucket
+              - /*
+          Principal:
+            AWS: 
+              - '*'
+
+  DanglingDNSAuditFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: !Ref S3SourceBucket
+        S3Key: !Ref S3Key
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      MemorySize: 128
+      Timeout: 300
+      Role: !GetAtt LambdaRoleEnableInspection.Arn
+      Architectures:
+      - arm64
+      Environment:
+        Variables:
+          DestinationBucketName:
+            Ref: DestinationBucketName
+          AssumeRole:
+            Ref: AssumeRole
+  LambdaRoleEnableInspection:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Service-Role for Lambda-Enable-Inspection to have the required
+        access to execute successfully
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: /
+      RoleName: LambdaExecutionRole-EnableInspection
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+      - PolicyName: Enable-Inspection-Lambda
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - sts:AssumeRole
+            Resource:
+              Fn::Sub: arn:aws:iam::*:role/${AssumeRole}
+            Condition:
+              StringEquals:
+                aws:PrincipalOrgId:
+                  Ref: OrganizationId
+          - Effect: Allow
+            Action:
+            - organizations:DeregisterDelegatedAdministrator
+            Resource:
+              Fn::Sub: arn:aws:organizations::${AWS::AccountId}:account/${OrganizationId}/*
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            Resource:
+            - Fn::Sub: arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*
+          - Effect: Allow
+            Action:
+            - organizations:RegisterDelegatedAdministrator
+            - organizations:ListAccounts
+            - organizations:ListDelegatedAdministrators
+            - cloudtrail:DescribeTrails
+            - cloudformation:ListStackInstances
+            Resource: '*'
+  LifeCycleRuleInspection:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "AWS Inspection Lambda Trigger"
+      State: "ENABLED"
+      Targets:
+        - Arn: !GetAtt DanglingDNSAuditFunction.Arn
+          Id: "Logging"
+      ScheduleExpression: "cron(0 8 * * ? *)"
+  PermissionForEventToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt DanglingDNSAuditFunction.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt LifeCycleRuleInspection.Arn
