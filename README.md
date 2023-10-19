@@ -2,32 +2,32 @@
 
 
 <h1 align="center">
-    Control Tower detective-service
+    Control Tower inspection-lambda
 </h1>
 
 <p align="center" style="font-size: 1.2rem;"> 
-    CloudFormation Template for detective-service.
+    CloudFormation Template for inspection-lambda.
 </p>
 
 <p align="center">
 <a href="LICENSE">
   <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
 </a>
-<a href="https://github.com/aws-controltower-examples/aws-control-tower-Detective-service/actions/workflows/cf-lint.yml">
-  <img src="https://github.com/aws-controltower-examples/aws-control-tower-Detective-service/actions/workflows/cf-lint.yml/badge.svg" alt="tfsec">
+<a href="https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda/actions/workflows/cf-lint.yml">
+  <img src="https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda/actions/workflows/cf-lint.yml/badge.svg" alt="tfsec">
 </a>
 
 
 </p>
 <p align="center">
 
-<a href='https://facebook.com/sharer/sharer.php?u=https://github.com/aws-controltower-examples/aws-control-tower-detective-service-enabler'>
+<a href='https://facebook.com/sharer/sharer.php?u=https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda-enabler'>
   <img title="Share on Facebook" src="https://user-images.githubusercontent.com/50652676/62817743-4f64cb80-bb59-11e9-90c7-b057252ded50.png" />
 </a>
-<a href='https://www.linkedin.com/shareArticle?mini=true&title=AWS+Control+Tower+detective-service+Enabler&url=https://github.com/aws-controltower-examples/aws-control-tower-detective-service-enabler'>
+<a href='https://www.linkedin.com/shareArticle?mini=true&title=AWS+Control+Tower+inspection-lambda+Enabler&url=https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda-enabler'>
   <img title="Share on LinkedIn" src="https://user-images.githubusercontent.com/50652676/62817742-4e339e80-bb59-11e9-87b9-a1f68cae1049.png" />
 </a>
-<a href='https://twitter.com/intent/tweet/?text=AWS+Control+Tower+detective-service+Enabler&url=https://github.com/aws-controltower-examples/aws-control-tower-detective-service-enabler'>
+<a href='https://twitter.com/intent/tweet/?text=AWS+Control+Tower+inspection-lambda+Enabler&url=https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda-enabler'>
   <img title="Share on Twitter" src="https://user-images.githubusercontent.com/50652676/62817740-4c69db00-bb59-11e9-8a79-3580fbbf6d5c.png" />
 </a>
 
@@ -37,7 +37,7 @@
 
 We eat, drink, sleep and most importantly love **DevOps**. We are working towards strategies for standardizing architecture while ensuring security for the infrastructure. We are strong believer of the philosophy <b>Bigger problems are always solved by breaking them into smaller manageable problems</b>. Resonating with microservices architecture, it is considered best-practice to run database, cluster, storage in smaller <b>connected yet manageable pieces</b> within the infrastructure.
 
-The AWS Control Tower detective-service is an AWS CloudFormation template designed to simplify the process of enabling and configuring AWS detective-service in the security account of an AWS Control Tower environment. This template creates essential AWS resources, such as IAM roles, Lambda functions, and SNS topics, to automate the detective-service setup based on your specified parameters.
+The AWS Control Tower inspection-lambda is an AWS CloudFormation template designed to simplify the process of enabling and configuring AWS inspection-lambda in the security account of an AWS Control Tower environment. This template creates essential AWS resources, such as IAM roles, Lambda functions, and SNS topics, to automate the inspection-lambda setup based on your specified parameters.
 
 ## Prerequisites
 
@@ -53,17 +53,15 @@ Before you proceed, ensure that you have the following prerequisites in place:
 
 | Name | Description | Type | Default |
 |------|-------------|------| ------- |
-| DetectiveMasterAccountId | The AWS account ID of the Security(Audit) Account. | String | `n/a` |
 | OrganizationId | AWS Organizations ID for the Control Tower. | String | n/a |
-| S3SourceBucket | The S3 bucket containing the detective-service Lambda deployment package. | String | `""` |
-| S3Key| The S3 object key for the detective-service Lambda deployment package. | String | `detective.zip` |
-| CfnS3Key| The S3 Path Cfnresponse zip file | String | `cfnresponse.zip` |
-| RoleToAssume | The IAM role to be assumed in child accounts to enable detective-service. | String | `AWSControlTowerExecution` |
-| ExcludedAccounts | Excluded Accounts list. This list should contain Management account, Log Archive and Audit accounts at the minimum | String | `""` |
+| S3SourceBucket | The S3 bucket containing the inspection-lambda Lambda deployment package. | String | `""` |
+| S3Key| The S3 object key for the inspection-lambda Lambda deployment package. | String | `detective.zip` |
+| DestinationBucketName| The S3 bucket where AccountID, Hosted Zone ID, Record Set Name, IP Address, IP Owned saved the audit report. | String | `""` |
+| AssumeRole | The IAM role to be assumed in child accounts to enable inspection-lambda. | String | `AWSControlTowerExecution` |
 
 ## Deployment
 
-Follow these steps to deploy the AWS Control Tower detective-service template:
+Follow these steps to deploy the AWS Control Tower inspection-lambda template:
 
 1. Sign in to the AWS Management Console or use the AWS CLI.
 
@@ -81,14 +79,14 @@ Follow these steps to deploy the AWS Control Tower detective-service template:
 
 The CloudFormation template creates the following AWS resources:
 
-- **IAM Role:** An IAM role for the detective-service Lambda function with necessary permissions.
+- **IAM Role:** An IAM role for the inspection-lambda Lambda function with necessary permissions.
 
-- **Lambda Function:** The detective-service Lambda function, responsible for configuring detective-service.
+- **Lambda Function:** The inspection-lambda Lambda function, responsible for configuring inspection-lambda.
 
 - **CloudWatch Event Rules:** Scheduled rules to trigger the Lambda function periodically and when AWS accounts are created or managed via AWS
 
 ## Feedback 
-If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/aws-controltower-examples/aws-control-tower-detective-service-enabler/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
+If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda-enabler/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
 
 If you have found it worth your time, go ahead and give us a ★ on [our GitHub](https://github.com/clouddrove/terraform-aws-vpc-peering)!
 

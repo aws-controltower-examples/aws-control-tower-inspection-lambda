@@ -4,6 +4,7 @@ Description: Creates a Lambda function that audits for dangling DNS records in t
 Parameters:
   DestinationBucketName:
     Type: String
+    Description: Add destination bucket name where your audit report added (where AccountID, Hosted Zone ID, Record Set Name, IP Address, IP Owned saved).
   OrganizationId:
     Type: String
     Description: The Amazon Organizations ID for Control Tower.

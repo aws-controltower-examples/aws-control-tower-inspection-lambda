@@ -9,5 +9,5 @@ jobs:
   cloudformation-checks:
     uses: clouddrove/github-shared-workflows/.github/workflows/cf-lint.yml@master
     with:
-      cf_file_path: ./detective.template
+      cf_file_path: ./inspection.template
 ...
