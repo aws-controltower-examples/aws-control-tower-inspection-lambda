@@ -82,7 +82,7 @@ Resources:
               - /*
           Principal:
             AWS: 
-              - '*'
+              - "*"
 
   DestinationBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -104,7 +104,7 @@ Resources:
               - /*
           Principal:
             AWS: 
-              - '*'
+              - "*"
 
   DanglingDNSAuditFunction:
     Type: AWS::Lambda::Function
