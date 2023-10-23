@@ -80,9 +80,7 @@ Resources:
             - - 'arn:aws:s3:::'
               - Ref: LoggingBucket
               - /*
-          Principal:
-            AWS: 
-              - "*"
+          Principal: "*"
 
   DestinationBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -102,9 +100,7 @@ Resources:
             - - 'arn:aws:s3:::'
               - Ref: DestinationBucket
               - /*
-          Principal:
-            AWS: 
-              - "*"
+          Principal: "*"
 
   DanglingDNSAuditFunction:
     Type: AWS::Lambda::Function
