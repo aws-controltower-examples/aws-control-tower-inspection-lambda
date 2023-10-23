@@ -70,17 +70,18 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-        - Action:
-          - s3:GetObject
-          - s3:PutObject
-          Effect: Allow
-          Resource:
-            Fn::Join:
-            - ''
-            - - 'arn:aws:s3:::'
-              - Ref: LoggingBucket
-              - /*
-          Principal: "*"
+          - Sid: DenyPublicAccess
+            Effect: Deny
+            Principal: "*"
+            Action:
+              - "s3:GetObject"
+              - "s3:PutObject"
+            Resource:
+              Fn::Join:
+              - ''
+              - - 'arn:aws:s3:::'
+                - Ref: LoggingBucket
+                - /*
 
   DestinationBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -90,17 +91,18 @@ Resources:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-        - Action:
-          - s3:GetObject
-          - s3:PutObject
-          Effect: Allow
-          Resource:
-            Fn::Join:
-            - ''
-            - - 'arn:aws:s3:::'
-              - Ref: DestinationBucket
-              - /*
-          Principal: "*"
+          - Sid: DenyPublicAccess
+            Effect: Deny
+            Principal: "*"
+            Action:
+              - "s3:GetObject"
+              - "s3:PutObject"
+            Resource:
+              Fn::Join:
+              - ''
+              - - 'arn:aws:s3:::'
+                - Ref: DestinationBucket
+                - /*
 
   DanglingDNSAuditFunction:
     Type: AWS::Lambda::Function
