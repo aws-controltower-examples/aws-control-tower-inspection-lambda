@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger()
 
 bucketName = os.environ.get('DestinationBucketName')
+role_to_assume = os.environ['AssumeRole']
 
 
 def lambda_handler(event, context):
@@ -28,9 +29,10 @@ def lambda_handler(event, context):
                 account_to_audit = sts_connection.assume_role(
                     RoleArn="arn:aws:iam::" +
                     account['Id'] +
-                    ":role/aws-controltower-ReadOnlyExecutionRole",
+                    ":role/" + role_to_assume,
                     RoleSessionName="auditaccount_dns_audit"
                 )
+                
                 ACCESS_KEY = account_to_audit['Credentials']['AccessKeyId']
                 SECRET_KEY = account_to_audit['Credentials']['SecretAccessKey']
                 SESSION_TOKEN = account_to_audit['Credentials']['SessionToken']

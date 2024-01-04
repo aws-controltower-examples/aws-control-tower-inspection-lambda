@@ -1,39 +1,106 @@
-## aws-control-tower-multi-account-inspection-lambda
-
-This sample gives you an example Python 3.x based Lambda function code to inspect your Control Tower based multi-account environment from  your Control Tower Audit account. The function makes use of the existing Audit focused IAM roles in your Audit account to assume corresponding roles in the individual accounts being inspected. 
-
-The use case for inspection in this example looks for dangling Route53 DNS records for A records pointing to IP addresses that your accounts no longer own. There are several other use cases for inspection and remediation which can be developed using this mechanism. The accompanying blog post provides more details. Blog link coming soon.
-
-## Deploy the sample application
-
-The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.
-
-To use the SAM CLI, you need the following tools.
-
-* SAM CLI - [Install the SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-* [Python 3 installed](https://www.python.org/downloads/)
-* Docker - [Install Docker community edition](https://hub.docker.com/search/?type=edition&offering=community)
-
-To build and deploy your application for the first time, run the following in your shell:
-
-```bash
-sam build
-sam deploy --guided
-```
-
-The first command will build the source of your application. The second command will package and deploy your application to AWS, with a series of prompts:
-
-* **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
-* **AWS Region**: The AWS region you want to deploy your app to.
-* **Confirm changes before deploy**: If set to yes, any change sets will be shown to you before execution for manual review. If set to no, the AWS SAM CLI will automatically deploy application changes.
-* **Allow SAM CLI IAM role creation**: Many AWS SAM templates, including this example, create AWS IAM roles required for the AWS Lambda function(s) included to access AWS services. By default, these are scoped down to minimum required permissions. To deploy an AWS CloudFormation stack which creates or modifies IAM roles, the `CAPABILITY_IAM` value for `capabilities` must be provided. If permission isn't provided through this prompt, to deploy this example you must explicitly pass `--capabilities CAPABILITY_IAM` to the `sam deploy` command.
-* **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
+<p align="center"> <img src="https://avatars.githubusercontent.com/u/145441379?s=200&v=4" width="130" height="130"></p>
 
 
-## Security
+<h1 align="center">
+    Control Tower inspection-lambda
+</h1>
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+<p align="center" style="font-size: 1.2rem;"> 
+    CloudFormation Template for inspection-lambda.
+</p>
 
-## License
+<p align="center">
+<a href="LICENSE">
+  <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
+</a>
+<a href="https://github.com/aws-controltower-examples/aws-control-tower-Detective-service/actions/workflows/cf-lint.yml">
+  <img src="https://github.com/aws-controltower-examples/aws-control-tower-Detective-service/actions/workflows/cf-lint.yml/badge.svg" alt="tfsec">
+</a>
 
-This library is licensed under the MIT-0 License. See the LICENSE file.
+
+</p>
+<p align="center">
+
+<a href='https://facebook.com/sharer/sharer.php?u=https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda-enabler'>
+  <img title="Share on Facebook" src="https://user-images.githubusercontent.com/50652676/62817743-4f64cb80-bb59-11e9-90c7-b057252ded50.png" />
+</a>
+<a href='https://www.linkedin.com/shareArticle?mini=true&title=AWS+Control+Tower+inspection-lambda+Enabler&url=https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda-enabler'>
+  <img title="Share on LinkedIn" src="https://user-images.githubusercontent.com/50652676/62817742-4e339e80-bb59-11e9-87b9-a1f68cae1049.png" />
+</a>
+<a href='https://twitter.com/intent/tweet/?text=AWS+Control+Tower+inspection-lambda+Enabler&url=https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda-enabler'>
+  <img title="Share on Twitter" src="https://user-images.githubusercontent.com/50652676/62817740-4c69db00-bb59-11e9-8a79-3580fbbf6d5c.png" />
+</a>
+
+</p>
+<hr>
+
+
+We eat, drink, sleep and most importantly love **DevOps**. We are working towards strategies for standardizing architecture while ensuring security for the infrastructure. We are strong believer of the philosophy <b>Bigger problems are always solved by breaking them into smaller manageable problems</b>. Resonating with microservices architecture, it is considered best-practice to run database, cluster, storage in smaller <b>connected yet manageable pieces</b> within the infrastructure.
+
+The AWS Control Tower inspection-lambda is an AWS CloudFormation template designed to simplify the process of enabling and configuring AWS inspection-lambda in the security account of an AWS Control Tower environment. This template creates essential AWS resources, such as IAM roles, Lambda functions, and SNS topics, to automate the inspection-lambda setup based on your specified parameters.
+
+## Prerequisites
+
+Before you proceed, ensure that you have the following prerequisites in place:
+
+1. **AWS Control Tower Environment**: You must have an AWS Control Tower environment set up.
+
+2. **AWS Access**: You should have AWS CLI or AWS Management Console access with sufficient permissions to deploy CloudFormation templates.
+
+3. **Security Account**: Know the AWS account ID of your Security Account.
+
+## Parameters
+
+| Name | Description | Type | Default |
+|------|-------------|------| ------- |
+| OrganizationId | AWS Organizations ID for the Control Tower. | String | n/a |
+| S3SourceBucket | The S3 bucket containing the inspection-lambda Lambda deployment package. | String | `""` |
+| S3Key| The S3 object key for the inspection-lambda Lambda deployment package. | String | `detective.zip` |
+| DestinationBucketName| The S3 bucket where AccountID, Hosted Zone ID, Record Set Name, IP Address, IP Owned saved the audit report. | String | `""` |
+| AssumeRole | The IAM role to be assumed in child accounts to enable inspection-lambda. | String | `AWSControlTowerExecution` |
+
+## Deployment
+
+Follow these steps to deploy the AWS Control Tower inspection-lambda template:
+
+1. Sign in to the AWS Management Console or use the AWS CLI.
+
+2. Navigate to the AWS CloudFormation service.
+
+3. Create a new CloudFormation stack.
+
+4. Upload this template or provide the S3 URL where it is located.
+
+5. Fill in the required parameters as described above.
+
+6. Review and confirm the stack creation.
+
+## Functionality
+
+The CloudFormation template creates the following AWS resources:
+
+- **IAM Role:** An IAM role for the inspection-lambda Lambda function with necessary permissions.
+
+- **Lambda Function:** The inspection-lambda Lambda function, responsible for configuring inspection-lambda.
+
+- **CloudWatch Event Rules:** Scheduled rules to trigger the Lambda function periodically and when AWS accounts are created or managed via AWS
+
+## Feedback 
+If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/aws-controltower-examples/aws-control-tower-inspection-lambda-enabler/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
+
+If you have found it worth your time, go ahead and give us a ★ on [our GitHub](https://github.com/clouddrove/terraform-aws-vpc-peering)!
+
+## About us
+
+At [CloudDrove][website], we offer expert guidance, implementation support and services to help organisations accelerate their journey to the cloud. Our services include docker and container orchestration, cloud migration and adoption, infrastructure automation, application modernisation and remediation, and performance engineering.
+
+<p align="center">We are <b> The Cloud Experts!</b></p>
+<hr />
+<p align="center">We ❤️  <a href="https://github.com/clouddrove">Open Source</a> and you can check out <a href="https://github.com/clouddrove">our other modules</a> to get help with your new Cloud ideas.</p>
+
+  [website]: https://clouddrove.com
+  [github]: https://github.com/clouddrove
+  [linkedin]: https://cpco.io/linkedin
+  [twitter]: https://twitter.com/clouddrove/
+  [email]: https://clouddrove.com/contact-us.html
+  [terraform_modules]: https://github.com/clouddrove?utf8=%E2%9C%93&q=terraform-&type=&language=
